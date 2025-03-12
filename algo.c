@@ -6,7 +6,7 @@
 /*   By: kkafmagh <kkafmagh@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 10:48:07 by kkafmagh          #+#    #+#             */
-/*   Updated: 2025/03/12 12:19:39 by kkafmagh         ###   ########.fr       */
+/*   Updated: 2025/03/12 12:24:38 by kkafmagh         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ int	checkdoublon(t_tab *tab_a, int *tablen_a)
 			if (tab_a[i].number == tab_a[j].number)
 			{
 				printf("Error");
-				// free(tab_a);
 				return (1);
 			}
 			j++;
