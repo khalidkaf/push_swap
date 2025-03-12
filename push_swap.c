@@ -1,302 +1,244 @@
-#include <stdio.h>
-#include <stdlib.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   push_swap.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kkafmagh <kkafmagh@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/04 13:32:26 by kkafmagh          #+#    #+#             */
+/*   Updated: 2025/03/12 12:11:43 by kkafmagh         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// retour en arriere
-void	sa(int *tab_a, int *tablen_a);
+#include "push_swap.h"
 
-void	sb(int *tab_b, int tablen_b);
-
-void	ss(int *tab_a, int *tab_b, int *tablen_a, int *tablen_b);
-
-void	pa(int **tab_a, int *tab_b, int *tablen_a, int *tablen_b);
-
-void	pb(int *tab_a, int **tab_b, int *tablen_a, int *tablen_b);
-
-void	ra(int *tab_a, int *tablen_a);
-
-void	rb(int *tab_b, int *tablen_b);
-
-void	rr(int *tab_a, int *tab_b, int *tablen_a, int *tablen_b);
-
-void	rra(int *tab_a, int *tablen_a);
-
-void	rrb(int *tab_b, int *tablen_b);
-
-void	rrr(int *tab_a, int *tab_b, int *tablen_a, int *tablen_b);
-
-int     checkdoublon(int *tab_a, int *tablen_a);
-
-void	repartition(int *tab_a, int *tab_b, int *tablen_a, int *tablen_b);
-
-int		checker(int *tab_a, int *tablen_a);
-
-void	tri(int **tab_a, int **tab_b, int *tablen_a, int *tablen_b);
-
-
-size_t	ft_strlen(const char *s)
+int	mep_tab(char *argv[], int argc, t_tab **tab_a, int *tablen_a)
 {
-	size_t	i;
+	t_main	count;
 
-	i = 0;
-	while (s[i])
+	count.i = 1;
+	*tab_a = malloc(compteur(argv, argc) * sizeof(t_tab));
+	if (!tab_a)
+		return (0);
+	while (argv[count.i])
 	{
-		i++;
+		if (!only_numbers(argv[count.i]))
+			return (printf("Error\n"), 0);
+		count.tmp = ft_atoi(argv[count.i]);
+		if (count.tmp > 2147483647 || count.tmp < -2147483648 || (count.tmp == 0
+				&& (!ft_strcmp(argv[count.i], "0") && !ft_strcmp(argv[count.i],
+						"-0") && !ft_strcmp(argv[count.i], "+0"))))
+			return (printf("Error\n"), 0);
+		(*tab_a)[*tablen_a].number = count.tmp;
+		(*tab_a)[*tablen_a].index = *tablen_a;
+		(*tablen_a) = (*tablen_a) + 1;
+		count.i++;
 	}
-	return (i);
+	return (1);
 }
 
-// char	*ft_strdup(char *s)
-// {
-// 	int		i;
-// 	char	*str;
-
-// 	i = 0;
-// 	str = malloc(sizeof(char) * (ft_strlen(s) + 1));
-// 	if (!str)
-// 		return (NULL);
-// 	while (s[i])
-// 	{
-// 		str[i] = s[i];
-// 		i++;
-// 	}
-// 	str[i] = 0;
-// 	return (str);
-// }
-
-int	ft_atoi(const char *nptr)
+void	free_split(char **tab)
 {
 	int	i;
-	int	s;
-	int	nbr;
 
-	s = 1;
-	nbr = 0;
 	i = 0;
-	while (nptr[i] == ' ' || nptr[i] == '\n' || nptr[i] == '\t'
-		|| nptr[i] == '\v' || nptr[i] == '\f' || nptr[i] == '\r')
-		i++;
-	if (nptr[i] == '-' || nptr[i] == '+')
+	if (tab)
 	{
-		if (nptr[i] == '-')
-			s *= -1;
-		i++;
+		while (tab[i])
+		{
+			free(tab[i]);
+			i++;
+		}
+		free(tab);
 	}
-	while (nptr[i] >= '0' && nptr[i] <= '9')
+}
+
+char	**spliter(char *str)
+{
+	char	**tab;
+
+	tab = ft_split(str, ' ');
+	return (tab);
+}
+
+int	mep_tab_args(char *argv[], int argc, t_tab **tab_a, int *tablen_a)
+{
+	t_main	count;
+
+	count.i = 0;
+	*tab_a = malloc(argc * (sizeof(t_tab) + 1));
+	if (!tab_a)
+		return (0);
+	while (argv[count.i])
 	{
-		nbr = nbr * 10 + (nptr[i] - 48);
-		i++;
+		if (!only_numbers(argv[count.i]))
+			return (printf("Error\n"), 0);
+		count.tmp = ft_atoi(argv[count.i]);
+		if (count.tmp > 2147483647 || count.tmp < -2147483648 || (count.tmp == 0
+				&& (!ft_strcmp(argv[count.i], "0") && !ft_strcmp(argv[count.i],
+						"-0") && !ft_strcmp(argv[count.i], "+0"))))
+			return (printf("Error\n"), 0);
+		(*tab_a)[*tablen_a].number = count.tmp;
+		(*tab_a)[*tablen_a].index = *tablen_a;
+		(*tablen_a)++;
+		count.i++;
 	}
-	return (nbr * s);
+	return (1);
 }
 
 int	main(int argc, char *argv[])
 {
-	int	i;
-	int	j;
-	int	k;
-	int	*tab_a;
-	int	tmp;
-	int	tablen_a;
-	int z = 0;
-	i = 1;
-	j = 0;
-	k = 0;
-	// printf("tab au debut : %lu \n", (sizeof(tab_a) / 4));
+	t_main	count;
+	t_tab	*tab_a;
+	int		tablen_a;
+	int		tablen_b;
+	t_tab	*tab_b;
 
-	
-	if (argc < 2)
+	count.nbr = compteur(argv, argc);
+	if (argc == 1 || (argv[1][0] == '\0') || count.nbr == 0)
+		return (0);
+	tablen_a = 0;
+	if (argc == 2)
 	{
-		printf("PAS ASSEZ D'ARGUMENTS !");
-		return (1);
+		count.str = spliter(argv[1]);
+		if (!mep_tab_args(count.str, count.nbr, &tab_a, &tablen_a))
+			return (free_split(count.str), free(tab_a), 0);
+		free_split(count.str);
 	}
-
-
-	while (argv[i])
-	{
-		while (j < ft_strlen(argv[i]))
-		{
-			if(argv[i][j] == 0)
-				i++;
-			if((argv[i][j] < '0' || argv[i][j] > '9') && argv[i][j] != ' ' && argv[i][j] != '+' && argv[i][j] != '-')
-				{
-					printf("Error\n");
-					return 1;
-				}
-			if (((argv[i][j] >= '0' && argv[i][j] <= '9') || argv[i][j] == '-' || argv[i][j] == '+') 
-			&& (argv[i][j - 1] == ' ' || j == 0))// si c'est un chiffre ou + ou - et avant c'est un ' ' ou le debut
-				{
-					tmp = ft_atoi(argv[i]+j);
-					if(!tmp)
-						{
-							printf("Error\n");
-							return 1;
-						}
-					j++;
-					k++;
-				}
-				j++;
-		}
-		j = 0;
-		i++;
-	}
-	tab_a = malloc(k * sizeof(int));
-	k = 0;
-	i = 0;
-	j = 0;
-	while (argv[i])
-	{
-		while (j < ft_strlen(argv[i]))
-		{
-			if(argv[i][j] == 0)
-				i++;
-			if (((argv[i][j] >= '0' && argv[i][j] <= '9') || argv[i][j] == '-' || argv[i][j] == '+') 
-			&& (argv[i][j - 1] == ' ' || j == 0))// si c'est un chiffre ou + ou - et avant c'est un ' ' ou le debut
-				{
-					tmp = ft_atoi(argv[i]+j);
-					tab_a[k] = tmp;
-					// printf("tmp : %d", tmp);
-					j++;
-					k++;
-				}
-				j++;
-		}
-		j = 0;
-		i++;
-	}
-
-	
-	tablen_a = k;
-
-	if(checker(tab_a, &tablen_a) == 0)
-		{
-			return 1;
-		}
-	
-	if(checkdoublon(tab_a, &tablen_a) == 1)
-	{
-		return 1;
-	}
-
-
-	int tablen_b = 0;
-
-	int *tab_b;
-	if(tablen_b>0)
-		tab_b = malloc(sizeof(int) * tablen_b);
-	// else
-	// 	tab_b[0];
-
-	
-		// printf("k : %d", k);
-
-	z = 0;
-	printf("\n");
-	printf("tab_a avant modifications : \n");
-	while (z < tablen_a)
-	{
-		printf("%d \n", tab_a[z]);
-		z++;
-	}
-
-	printf("\n");
-	
-	printf("tab_b avant modifications : \n");
-	z = 0;
-	while (z < tablen_b)
-	{
-		printf("%d \n", tab_b[z]);
-		z++;
-	}
-	printf("**********************************************************************\n");
-
-	// ***********************************jusque la, je n'ai fait aucune modification,
-	// juste checker si j'ai un doublon ou si la pile A est deja trie***********************************
-
-	tri(&tab_a, &tab_b, &tablen_a, &tablen_b);
-
-
-
-
-	printf("TEST\n");
-	printf("\n");
-	printf("tab_a apres tri : \n");
-	while (z < tablen_a)
-	{
-		printf("%d \n", tab_a[z]);
-		z++;
-	}
-
-	printf("\n");
-	
-	printf("tab_b apres tri : \n");
-	z = 0;
-	while (z < tablen_b)
-	{
-		printf("%d \n", tab_b[z]);
-		z++;
-	}
-
-
-
-
-	if(tab_a)
-		free(tab_a);
-	// if(tab_b)
-	// 	free(tab_b);
-
+	else if (!mep_tab(argv, argc, &tab_a, &tablen_a))
+		return (free(tab_a), 0);
+	tri_index(&tab_a, &tablen_a);
+	if (checker(tab_a, &tablen_a) == 0 || checkdoublon(tab_a, &tablen_a) == 1)
+		return (free(tab_a), 1);
+	tablen_b = 0;
+	tab_b = malloc(0 * sizeof(t_tab));
+	return (tri(&tab_a, &tab_b, &tablen_a, &tablen_b), free(tab_a), 1);
 }
 
+// COMMANDE POUR TESTER DEPUIS LE TERMINAL
+// ./push_swap $(shuf -i 1-1000 -n 100)
 
+// int	main(int argc, char *argv[])
+// {
+// 	int		i;
+// 	int		j;
+// 	int		k;
+// 	t_tab	*tab_a;
+// 	long	tmp;
+// 	int		tablen_a;
+// 	int		z;
+// 	int		tablen_b;
+// 	t_tab	*tab_b;
 
-// repartition(tab_a, tab_b, &tablen_a, &tablen_b);
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
-	// printf("************************************* \n");
+// 	z = 0;
+// 	i = 1;
+// 	j = 0;
+// 	k = 0;
+// 	if (argc < 2 || argv[1][0] == '\0')
+// 	{
+// 		return (1);
+// 	}
+// 	while (argv[i])
+// 	{
+// 		while (j < (int)ft_strlen(argv[i]))
+// 		{
+// 			if (argv[i][j] == 0)
+// 				i++;
+// 			if ((argv[i][j] < '0' || argv[i][j] > '9') && argv[i][j] != ' '
+// 				&& argv[i][j] != '+' && argv[i][j] != '-')
+// 			{
+// 				printf("Error\n");
+// 				return (1);
+// 			}
+// 			if (((argv[i][j] >= '0' && argv[i][j] <= '9') || argv[i][j] == '-'
+// 					|| argv[i][j] == '+') && (argv[i][j - 1] == ' ' || j == 0))
+// 			{
+// 				if (ft_atoi(argv[i] + (long)j) > 2147483647 || ft_atoi(argv[i]
+// 						+ (long)j) == -2147483649)
+// 				{
+// 					printf("Error\n");
+// 					return (0);
+// 				}
+// 				tmp = ft_atoi(argv[i] + (long)j);
+// 				if (tmp > 2147483647 || tmp < -2147483648)
+// 				{
+// 					printf("Error\n");
+// 					return (0);
+// 				}
+// 				if (tmp < -2147483648)
+// 				{
+// 					printf("Error\n");
+// 				}
+// 				j++;
+// 				k++;
+// 			}
+// 			j++;
+// 		}
+// 		j = 0;
+// 		i++;
+// 	}
+// 	tab_a = malloc(k * sizeof(t_tab));
+// 	if (!tab_a)
+// 	{
+// 		printf("Error\n");
+// 		return (1);
+// 	}
+// 	k = 0;
+// 	i = 0;
+// 	j = 0;
+// 	while (argv[i])
+// 	{
+// 		while (j < (int)ft_strlen(argv[i]))
+// 		{
+// 			if (argv[i][j] == 0)
+// 				i++;
+// 			if (((argv[i][j] >= '0' && argv[i][j] <= '9') || argv[i][j] == '-'
+// 					|| argv[i][j] == '+') && (argv[i][j - 1] == ' ' || j == 0))
+// 			{
+// 				tmp = ft_atoi(argv[i] + j);
+// 				if (tmp > 2147483647 || tmp < -2147483648)
+// 				{
+// 					printf("Error\n");
+// 					return (0);
+// 				}
+// 				tab_a[k].number = tmp;
+// 				tab_a[k].index = k;
+// 				j++;
+// 				k++;
+// 			}
+// 			j++;
+// 		}
+// 		j = 0;
+// 		i++;
+// 	}
+// 	tablen_a = k;
+// 	tri_index(&tab_a, &tablen_a);
+// 	if (checker(tab_a, &tablen_a) == 0)
+// 	{
+// 		return (1);
+// 	}
+// 	if (checkdoublon(tab_a, &tablen_a) == 1)
+// 	{
+// 		return (1);
+// 	}
+// 	tablen_b = 0;
+// 	tab_b = malloc(0 * sizeof(t_tab));
+// 	if (tablen_b > 0)
+// 		tab_b = malloc(sizeof(t_tab) * tablen_b);
+// 	z = 0;
+// 	while (z < tablen_a)
+// 	{
+// 		z++;
+// 	}
+// 	z = 0;
+// 	while (z < tablen_b)
+// 	{
+// 		z++;
+// 	}
+// 	tri(&tab_a, &tab_b, &tablen_a, &tablen_b);
+// 	z = 0;
+// 	if (tab_a)
+// 		free(tab_a);
+// 	if (tab_b)
+// 		free(tab_b);
+// }

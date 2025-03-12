@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "limits": "c",
+        "push_swap.h": "c",
+        "regex": "c"
+    }
+}
